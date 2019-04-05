@@ -4,34 +4,31 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Pinger.DAL;
+using Pinger.Extensions;
 using Pinger.Models;
 
 namespace Pinger.Controllers
 {
     public class HomeController : Controller
     {
+        IWebRepository repository;
+
+        public HomeController(IWebRepository repository)
+        {
+            this.repository = repository;
+        }
+
         public IActionResult Index()
         {
             return View();
         }
 
-        public IActionResult About()
+        public JsonResult Sites()
         {
-            ViewData["Message"] = "Your application description page.";
-
-            return View();
-        }
-
-        public IActionResult Contact()
-        {
-            ViewData["Message"] = "Your contact page.";
-
-            return View();
-        }
-
-        public IActionResult Privacy()
-        {
-            return View();
+            var sites = repository.GetSites();
+            var viewModel = sites.MapToIndexViewModel();
+            return Json(viewModel);
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

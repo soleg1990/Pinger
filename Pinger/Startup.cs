@@ -2,12 +2,18 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Pinger.Authorization;
+using Pinger.BL;
+using Pinger.DAL;
+using Pinger.DAL.EF;
 
 namespace Pinger
 {
@@ -30,6 +36,23 @@ namespace Pinger
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
 
+            string connection = Configuration.GetConnectionString("SqliteConnection");
+            services.AddDbContext<AuthorizationContext>(options =>
+                options.UseSqlite(connection));
+
+            services.AddTransient<IDbRepository, EFRepository>();
+            services.AddTransient<IWebRepository, MainRepository>();
+            services.AddTransient<IBackgroundRepository, MainRepository>();
+            services.AddTransient<IHostPinger, HostPinger>();
+            services.AddTransient<IBackgroundWork, BackgroundWork>();
+            services.AddTransient<IAuthorization, PingerAuthorization>();
+
+            services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+                .AddCookie(options =>
+                {
+                    options.LoginPath = new PathString("/Account/Login");
+                    options.AccessDeniedPath = new PathString("/Account/Login");
+                });
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
         }
@@ -47,13 +70,17 @@ namespace Pinger
             }
 
             app.UseStaticFiles();
-            app.UseCookiePolicy();
+            app.UseAuthentication();
 
             app.UseMvc(routes =>
             {
                 routes.MapRoute(
                     name: "default",
                     template: "{controller=Home}/{action=Index}/{id?}");
+
+                routes.MapRoute(
+                    name: "Admin",
+                    template: "{controller=Admin}/{action=Admin}");
             });
         }
     }
