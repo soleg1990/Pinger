@@ -34,7 +34,7 @@ namespace Pinger.Test
 
             CancellationTokenSource tokenSorc = new CancellationTokenSource();
             var token = tokenSorc.Token;
-            bgWork.Work(token);
+            bgWork.StartAsync(token);
             Thread.Sleep(300);
             tokenSorc.Cancel();
 

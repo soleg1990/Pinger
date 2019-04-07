@@ -1,4 +1,5 @@
-﻿using Pinger.DAL;
+﻿using Microsoft.Extensions.Hosting;
+using Pinger.DAL;
 using System;
 using System.Net.NetworkInformation;
 using System.Threading;
@@ -6,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Pinger.BL
 {
-    public class BackgroundWork : IBackgroundWork
+    public class BackgroundWork : IBackgroundWork, IHostedService
     {
         private IBackgroundRepository repository;
         private IHostPinger pinger;
@@ -17,9 +18,9 @@ namespace Pinger.BL
             this.pinger = pinger;
         }
 
-        public void Work(CancellationToken token)
+        public async Task StartAsync(CancellationToken token)
         {
-            Task.Run(() =>
+            await Task.Run(() =>
             {
                 while (!token.IsCancellationRequested)
                 {
@@ -34,6 +35,11 @@ namespace Pinger.BL
                     Thread.Sleep(100);
                 }
             }, token);
+        }
+
+        public Task StopAsync(CancellationToken cancellationToken)
+        {
+            return Task.CompletedTask;
         }
     }
 }

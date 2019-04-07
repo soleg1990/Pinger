@@ -47,6 +47,8 @@ namespace Pinger
             services.AddTransient<IBackgroundWork, BackgroundWork>();
             services.AddTransient<IAuthorization, PingerAuthorization>();
 
+            services.AddHostedService<BackgroundWork>();
+
             services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
                 .AddCookie(options =>
                 {

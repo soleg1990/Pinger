@@ -16,13 +16,7 @@ namespace Pinger
     {
         public static void Main(string[] args)
         {
-            var host = CreateWebHostBuilder(args).Build();
-            using (var scope = host.Services.CreateScope())
-            {
-                var bgw = scope.ServiceProvider.GetService<IBackgroundWork>();
-                bgw.Work(new System.Threading.CancellationToken());
-            }
-            host.Run();
+            CreateWebHostBuilder(args).Build().Run();
         }
 
         public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>

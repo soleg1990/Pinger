@@ -1,9 +1,10 @@
 ﻿using System.Threading;
+using System.Threading.Tasks;
 
 namespace Pinger.BL
 {
     public interface IBackgroundWork
     {
-        void Work(CancellationToken token);
+        Task StartAsync(CancellationToken token);
     }
 }
